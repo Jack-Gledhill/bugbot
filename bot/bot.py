@@ -23,7 +23,7 @@
 # ------------
 # Type imports
 # ------------
-from typing import Callable, List, f, Union
+from typing import Callable, List, Union
 
 
 # -----------------

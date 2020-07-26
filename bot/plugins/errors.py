@@ -60,17 +60,17 @@ class Handler(blueprint, commands.Cog, name="Error Handler"):
                    commands.NoPrivateMessage)
         _ = self.create_message
 
-        try:
-            await ctx.message.delete()
-
-        except:
-            pass
-
         # ===============================
         # Error that was manually ignored
         # ===============================
         if isinstance(error, IGNORED):
             return
+
+        try:
+            await ctx.message.delete()
+
+        except:
+            pass
 
         # =============================
         # Missing an argument somewhere

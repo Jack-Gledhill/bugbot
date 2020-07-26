@@ -189,7 +189,6 @@ class BugBot(blueprint, commands.Bot):
         # ==========================
         # Populate some of the cache
         # ==========================
-        cache.presence = Presence(**config.presence)
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # by placing this here, we avoid complications with the value of emojis from
         # within plugins, we also avoid the alternative which is load it in constants.py

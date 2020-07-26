@@ -1,0 +1,6 @@
+attrdict
+asyncpg
+git+git://github.com/Rapptz/discord.py@master#egg=discord
+termcolor
+pyfiglet
+pyyaml

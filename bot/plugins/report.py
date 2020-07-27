@@ -254,7 +254,7 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
                    ctx: commands.Context,
                    report_id: int,
                    section: str,
-                   new_content: str):
+                   *, new_content: str):
         """Edits an existing bug report.
         
         This only works on reports currently in the approval queue."""
@@ -281,32 +281,32 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
             return await ctx.failure(content="This report has already been moved.",
                                      delete_after=15)
 
-        key = {
-            "short": "short_description",
-            "header": "short_description",
-            "title": "short_description",
+        keys = {
+            "short": ("short_description", "short"),
+            "header": ("short_description", "short"),
+            "title": ("short_description", "short"),
 
-            "steps": "steps_to_reproduce",
-            "str": "steps_to_reproduce",
-            "body": "steps_to_reproduce",
+            "steps": ("steps_to_reproduce", "steps"),
+            "str": ("steps_to_reproduce", "steps"),
+            "body": ("steps_to_reproduce", "steps"),
 
-            "expected": "expected_result",
-            "actual": "actual_result",
+            "expected": ("expected_result", "expected"),
+            "actual": ("actual_result", "actual"),
 
-            "software": "software_version",
-            "sv": "software_version"
+            "software": ("software_version", "software"),
+            "sv": ("software_version", "software")
         }.get(section)
 
-        if key is None:
+        if keys is None:
             return await ctx.failure(content="Check the section name you provided, it's incorrect.",
                                      delete_after=15)
 
-        if key == "steps_to_reproduce":
+        if keys[0] == "steps_to_reproduce":
             new_content = new_content.split(" ~ ")
 
         async with postgres.acquire() as con:
             query = f"""UPDATE bug_reports
-                        SET {key} = $1
+                        SET {keys[0]} = $1
                         WHERE id = $2;"""
 
             await con.execute(query,
@@ -325,7 +325,7 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
             return await ctx.failure(content="The approval queue message no longer exists, please contact an Administrator.",
                                      delete_after=15)
 
-        existing[key] = new_content
+        existing[keys[1]] = new_content
 
         if existing["board"] is None:
             return await ctx.failure(content="The board for this report no longer exists, please contact an Administrator.",
@@ -402,13 +402,13 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
                 "content": info
             })
 
-        query = """UPDATE bug_reports
-                    SET approves = $1,
-                    denies = $2,
-                    stance = $3
-                    WHERE id = $4;"""
-
         async with postgres.acquire() as con:
+            query = """UPDATE bug_reports
+                       SET approves = $1,
+                       denies = $2,
+                       stance = $3
+                       WHERE id = $4;"""
+            
             await con.execute(query,
                               str(existing["approves"]), str(existing["denies"]), 1 if len(existing["approves"]) >= config.stances_needed else 0, existing["id"])
 
@@ -507,15 +507,15 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
                 "content": info
             })
 
-        query = """UPDATE bug_reports
-                    SET approves = $1,
-                    denies = $2,
-                    stance = $3
-                    WHERE id = $4;"""
-
         async with postgres.acquire() as con:
+            query = """UPDATE bug_reports
+                       SET approves = $1,
+                       denies = $2,
+                       stance = $3
+                       WHERE id = $4;"""
+            
             await con.execute(query,
-                              str(existing["approves"]), str(existing["denies"]), 1 if len(existing["approves"]) >= config.stances_needed else 0, existing["id"])
+                              str(existing["approves"]), str(existing["denies"]), 1, existing["id"])
 
         if existing["message"] is None:
             return await ctx.failure(content="The approval queue message no longer exists, please contact an Administrator.",
@@ -587,13 +587,13 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
                 "content": info
             })
 
-        query = """UPDATE bug_reports
-                    SET approves = $1,
-                    denies = $2,
-                    stance = $3
-                    WHERE id = $4;"""
-
         async with postgres.acquire() as con:
+            query = """UPDATE bug_reports
+                       SET approves = $1,
+                       denies = $2,
+                       stance = $3
+                       WHERE id = $4;"""
+            
             await con.execute(query,
                               str(existing["approves"]), str(existing["denies"]), -1 if len(existing["denies"]) >= config.stances_needed or existing["reporter"] == ctx.author else 0, existing["id"])
 
@@ -692,15 +692,15 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
                 "content": info
             })
 
-        query = """UPDATE bug_reports
-                    SET approves = $1,
-                    denies = $2,
-                    stance = $3
-                    WHERE id = $4;"""
-
         async with postgres.acquire() as con:
+            query = """UPDATE bug_reports
+                       SET approves = $1,
+                       denies = $2,
+                       stance = $3
+                       WHERE id = $4;"""
+            
             await con.execute(query,
-                              str(existing["approves"]), str(existing["denies"]), -1 if len(existing["denies"]) >= config.stances_needed or existing["reporter"] == ctx.author else 0, existing["id"])
+                              str(existing["approves"]), str(existing["denies"]), -1, existing["id"])
 
         if existing["message"] is None:
             return await ctx.failure(content="The approval queue message no longer exists, please contact an Administrator.",
@@ -917,12 +917,13 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
             "content": info
         })
 
-        query = """UPDATE bug_reports
-                    SET notes = $1
-                    WHERE id = $2;"""
+        async with postgres.acquire() as con:
+            query = """UPDATE bug_reports
+                       SET notes = $1
+                       WHERE id = $2;"""
 
-        await con.execute(query,
-                            str(existing["notes"]), existing["id"])
+            await con.execute(query,
+                              str(existing["notes"]), existing["id"])
 
         if existing["message"] is None:
             return await ctx.failure(content="The approval queue message no longer exists, please contact an Administrator.",

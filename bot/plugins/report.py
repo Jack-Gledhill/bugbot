@@ -389,6 +389,10 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
         if existing_stance is not None:
             if existing_stance[1] in existing["denies"]:
                 existing["denies"].remove(existing_stance[1])
+                existing["approves"].append({
+                    "author": ctx.author.id,
+                    "content": info
+                })
 
             else:
                 existing["approves"][existing_stance[0]] = {
@@ -494,6 +498,10 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
         if existing_stance is not None:
             if existing_stance[1] in existing["denies"]:
                 existing["denies"].remove(existing_stance[1])
+                existing["approves"].append({
+                    "author": ctx.author.id,
+                    "content": info
+                })
 
             else:
                 existing["approves"][existing_stance[0]] = {
@@ -574,6 +582,10 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
         if existing_stance is not None:
             if existing_stance[1] in existing["approves"]:
                 existing["approves"].remove(existing_stance[1])
+                existing["denies"].append({
+                    "author": ctx.author.id,
+                    "content": info
+                })
 
             else:
                 existing["denies"][existing_stance[0]] = {
@@ -679,6 +691,10 @@ class Commands(blueprint, commands.Cog, name="Report Commands"):
         if existing_stance is not None:
             if existing_stance[1] in existing["approves"]:
                 existing["approves"].remove(existing_stance[1])
+                existing["denies"].append({
+                    "author": ctx.author.id,
+                    "content": info
+                })
 
             else:
                 existing["denies"][existing_stance[0]] = {

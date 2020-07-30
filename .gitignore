@@ -1,6 +1,6 @@
 # Configuration files
 config.yml
-emojis.yml
+bot/core/constants.py
 dashboard/*
 
 # Other files

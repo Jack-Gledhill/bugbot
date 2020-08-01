@@ -15,8 +15,18 @@ def make_embed(bot: commands.Bot,
                report: Report) -> discord.Embed:
     """Creates an embed out of the info provided."""
 
+    color = bot.config["channels"]["boards"][report.board.id].get("color", 2105893)
+    if isinstance(color, str):
+        try:
+            color = int(color, 16)
+    
+        except ValueError:
+            color = 2105893
+            bot.log.warn(f"Color for board {report.board} is malformed.")
+
     embed = discord.Embed(title=f"`🔒` {report.short}" if report.locked else report.short,
-                          timestamp=report.created_at)
+                          timestamp=report.created_at,
+                          color=color)
     embed.set_author(name=f"{report.reporter} ({report.reporter.id})",
                      icon_url=report.reporter.avatar_url)
     embed.set_footer(text=f"Report ID: #{report.id}")

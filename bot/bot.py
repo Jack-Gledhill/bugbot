@@ -1,10 +1,10 @@
 from core import Core, version_info
 
 VERSION = version_info(
-    name="Bug Bot", 
+    name="bugbot", 
     major=2,
     minor=0,
-    patch=0,
+    patch=1,
     release="stable"
 )
 

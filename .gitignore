@@ -2,9 +2,7 @@
 config.yml
 bot/core/constants.py
 dashboard/*
-
-# Other files
-bot/emojis/_*
+docker-compose.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

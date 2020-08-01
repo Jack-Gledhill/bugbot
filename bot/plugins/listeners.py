@@ -16,14 +16,25 @@ def extra(emoji: str,
     return "\n".join(f"{emoji} **{e.author}**: {e.content}" for e in extras)
 
 def make_embed(bot: commands.Bot,
-               report: Report) -> discord.Embed:
+               report: Report,
+               url: str = discord.Embed.Empty) -> discord.Embed:
     """Creates an embed out of the info provided."""
 
+    color = bot.config["channels"]["boards"][report.board.id].get("color", 2105893)
+    if isinstance(color, str):
+        try:
+            color = int(color, 16)
+    
+        except ValueError:
+            color = 2105893
+            bot.log.warn(f"Color for board {report.board} is malformed.")
+
     embed = discord.Embed(title=f"`🔒` {report.short}" if report.locked and report.stance != -1 else report.short,
-                          timestamp=report.created_at)
-    embed.set_author(name=f"{report.reporter} {report.reporter.id}",
+                          timestamp=report.created_at,
+                          color=color)
+    embed.set_author(name=f"{report.reporter} ({report.reporter.id})",
                      icon_url=report.reporter.avatar_url,
-                     url=report.issue.url if report.stance == 1 else discord.Embed.Empty)
+                     url=url)
     embed.set_footer(text=f"Report ID: #{report.id}")
     embed.add_field(name="Steps to reproduce",
                     value="\n".join(f"{i+1}. {step}" for i, step in enumerate(report.steps)),
@@ -137,7 +148,7 @@ class Plugin(commands.Cog, name="General Listeners"):
             url = "*No configured repo.*"
 
         # Create new message in the bug board
-        await report.board.send(embed=make_embed(self.bot, report))
+        await report.board.send(embed=make_embed(self.bot, report, url))
 
         # Add reward role to user
         if ctx.guild.me.guild_permissions.manage_roles:

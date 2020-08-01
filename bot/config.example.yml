@@ -20,6 +20,7 @@ boards:
   123456789098765432: # some-bugs
     repo: owner/repo
     token: no.token-4.u
+    color: ff0000
 
 roles:
   everyone: # @everyone

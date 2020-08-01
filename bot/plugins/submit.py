@@ -43,11 +43,22 @@ parser.add_argument("-sv",
                     nargs="+")
 
 def make_embed(bot: commands.Bot,
+               board: discord.TextChannel,
                **info: dict) -> discord.Embed:
     """Creates an embed out of the info provided."""
 
+    color = bot.config["channels"]["boards"][board.id].get("color", 2105893)
+    if isinstance(color, str):
+        try:
+            color = int(color, 16)
+    
+        except ValueError:
+            color = 2105893
+            bot.log.warn(f"Color for board {board} is malformed.")
+
     embed = discord.Embed(title=info["short"],
-                          timestamp=datetime.utcnow())
+                          timestamp=datetime.utcnow(),
+                          color=color)
     embed.set_author(name=f"{info['reporter']} ({info['reporter'].id})",
                      icon_url=info["reporter"].avatar_url)
     embed.set_footer(text=f"Report ID: #{info['id']}")
@@ -126,7 +137,7 @@ class Plugin(commands.Cog, name="Submit Command"):
                                     ctx.author.id, ctx.channel.id, data["title"], str(steps), data["expected"], data["actual"], data["software"], 0, datetime.utcnow())
 
             message = await queue.send(f"From: {ctx.channel.mention}",
-                                       embed=make_embed(self.bot,
+                                       embed=make_embed(self.bot, ctx.channel,
                                                         id=id,
                                                         reporter=ctx.author,
                                                         short=data["title"],
